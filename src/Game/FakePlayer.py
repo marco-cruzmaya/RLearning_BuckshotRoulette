@@ -48,14 +48,22 @@ class FakePlayer(Player):
                 self.loadout = o_player.get_loadout()
                 return True
             case 2: #Beer
+                self.chamber[self.shotgun.n_bullet] = self.shotgun.current_bullet.copy()
                 self.shotgun.shoot()
+                self.n_bullet += 1
             case 3: #Burner Phone
                 n_bullets = self.shotgun.get_n_bullets()
                 if n_bullets < 2:
                     return False
-                predicted_bullet_pos = rnd.randint(self.n_bullet+1,self.n_bullet+n_bullets)
+                # ensure predicted position is within shotgun chamber bounds
+                low = max(self.n_bullet + 1, 0)
+                high = min(self.n_bullet + n_bullets, len(self.shotgun.chamber) - 1)
+                if low > high:
+                    return False
+                predicted_bullet_pos = rnd.randint(low, high)
                 predicted_bullet = self.shotgun.chamber[predicted_bullet_pos].copy()
-                self.chamber[predicted_bullet_pos] = predicted_bullet
+                if predicted_bullet_pos < len(self.chamber):
+                    self.chamber[predicted_bullet_pos] = predicted_bullet
             case 4: #Cigarette Pack
                 if self.health == self.max_health:
                     return False
@@ -73,11 +81,16 @@ class FakePlayer(Player):
             case 6: #Hand saw
                 self.shotgun.set_damage()
             case 7: #Handcuffs
-                o_player.set_can_take_action(False)
+                if self.can_use_handcuffs:
+                    o_player.set_can_take_action(False)
+                    self.set_can_use_handcuffs(False)
+                else:
+                    return False
             case 8: #Inverter
                 self.shotgun.invert_bullet()
             case 9: #Magnifying Glass
-                self.chamber[self.n_bullet] = self.shotgun.chamber[self.n_bullet].copy()
+                # guard index when copying from shotgun chamber
+                self.chamber[self.n_bullet] = self.shotgun.get_current_bullet().copy()
         if not self.can_shoot:
             self.can_shoot = True
             self.loadout = self.copy_loadout.copy()

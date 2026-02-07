@@ -27,4 +27,4 @@ class Shotgun(ABC):
         return self.n_bullets
     
     def is_empty(self):
-        return self.n_bullets > 0
+        return self.n_bullets == 0

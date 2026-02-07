@@ -13,6 +13,7 @@ class Player(ABC):
         self.copy_loadout = copy.deepcopy(self.loadout)
         self.can_shoot = True
         self.can_take_action = True
+        self.can_use_handcuffs = True
         self.shotgun = shotgun
         self.chamber = [Bullet(0)]*8
         self.bullets_count = self.shotgun.get_bullets_count()
@@ -39,6 +40,9 @@ class Player(ABC):
     def set_can_take_action(self,flag):
         self.can_take_action = flag
     
+    def set_can_use_handcuffs(self,flag):
+        self.can_use_handcuffs = flag
+    
     def is_alive(self):
         return self.health > 0
     
@@ -49,7 +53,13 @@ class Player(ABC):
         self.chamber = [Bullet(0)]*8
     
     def get_current_bullet(self):
-        return self.chamber[self.n_bullet]
+        # Guard against out-of-range indices by clamping to valid range
+        idx = int(self.n_bullet)
+        if idx < 0:
+            idx = 0
+        if idx >= len(self.chamber):
+            idx = len(self.chamber) - 1
+        return self.chamber[idx]
     
     @abstractmethod
     def pick_item(self,pos):

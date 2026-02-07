@@ -13,7 +13,7 @@ class Round(ABC):
         flag = True
         for player in self.players:
             flag = flag and player.is_alive()
-        flag = flag and self.shotgun.is_empty()
+        flag = flag and (not self.shotgun.is_empty())
         return flag
     
     def get_players(self):

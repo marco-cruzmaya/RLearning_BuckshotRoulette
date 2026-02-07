@@ -15,7 +15,7 @@ class Loadout(ABC):
         pass
     
     @abstractmethod
-    def take_items(self,items):
+    def insert_items(self,items):
         pass
 
     def __str__(self):
